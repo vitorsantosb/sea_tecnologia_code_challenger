@@ -5,6 +5,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -13,6 +14,7 @@ import java.util.UUID;
 @Data
 @Entity
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", updatable = false, unique = true, nullable = false)
@@ -23,11 +25,14 @@ public class User {
 
     private String cpf;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<UserEmail> emails;
+
+    @ElementCollection
+    @CollectionTable(name = "user_email", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "email")
+    private List<String> emails = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<UserPhone> phones;
+    private List<UserPhone> phones = new ArrayList<>();
 
     private String password;
 
@@ -49,24 +54,6 @@ public class User {
         private String city;
         private String state;
         private String zipCode;
-    }
-
-    // Inner class for emails
-    @Entity
-    @Table(name = "user_email")
-    @Data
-    public static class UserEmail {
-
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Long id;
-
-        @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "user_id")
-        private User user;
-
-        @Column(length = 100, nullable = false)
-        private String email;
     }
 
     // Inner class for phones

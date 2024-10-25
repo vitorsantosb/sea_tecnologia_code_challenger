@@ -86,19 +86,20 @@ public class UserController {
                     null
             );
         }
-        System.out.println(_user);
-        System.out.println(_user.getEmails());
-
-
         _user.setAddress(address);
-        List<User.UserEmail> emails = new ArrayList<>();
-        for (User.UserEmail email : _user.getEmails()) {
-            User.UserEmail userEmail = new User.UserEmail();
-            userEmail.setEmail(String.valueOf(email));
-            emails.add(userEmail);
-            System.out.println("email: " + email.getEmail());
+
+        System.out.println(_user);
+
+        if (_user.getEmails() != null) {
+            List<String> userEmails = new ArrayList<>(_user.getEmails());
+            _user.setEmails(userEmails);
         }
 
+        User.UserPhone phone = new User.UserPhone();
+        phone.setPhoneNumber("1234567890");
+        phone.setPhoneType("Mobile");
+
+        _user.setPhones(Collections.singletonList(phone));
 
         String _hashPassword = bcryptService.CreateHashPassword(_user.getPassword());
         _user.setPassword(_hashPassword);

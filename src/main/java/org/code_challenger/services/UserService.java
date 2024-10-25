@@ -36,34 +36,14 @@ public class UserService {
         return userResponse;
     }
 
-    public static List<User.UserPhone> ProcessUserPhones(List<Object> phoneList) {
-        List<User.UserPhone> userPhones = new ArrayList<>();
-
-        for (Object phone : phoneList) {
+    public static void SaveUserPhones(User user, List<User.UserPhone> phones) {
+        phones.forEach(phoneDTO -> {
             User.UserPhone userPhone = new User.UserPhone();
-
-            if (phone instanceof User.UserPhone) {
-                User.UserPhone phoneDTO = (User.UserPhone) phone;
-                userPhone.setPhoneNumber(phoneDTO.getPhoneNumber());
-                userPhone.setPhoneType(phoneDTO.getPhoneType());
-            }
-
-            userPhones.add(userPhone);
-        }
-
-        return userPhones;
-    }
-
-    public static List<User.UserEmail> processUserEmails(List<User.UserEmail> emailList) {
-        List<User.UserEmail> userEmails = new ArrayList<>();
-
-        for (User.UserEmail email : emailList) {
-            User.UserEmail userEmail = new User.UserEmail();
-            userEmail.setEmail(String.valueOf(email));
-            userEmails.add(userEmail);
-        }
-
-        return userEmails;
+            userPhone.setPhoneNumber(phoneDTO.getPhoneNumber());
+            userPhone.setPhoneType(phoneDTO.getPhoneType());
+            userPhone.setUser(user);
+            user.getPhones().add(userPhone);
+        });
     }
 
 }
