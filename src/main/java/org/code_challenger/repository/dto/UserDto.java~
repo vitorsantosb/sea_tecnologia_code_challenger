@@ -1,0 +1,51 @@
+package org.code_challenger.repository.dto;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+
+import javax.persistence.*;
+
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+
+@Table (name = "users")
+@Data
+@Entity
+public class UserDto {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", updatable = false, unique = true, nullable = false)
+    private UUID id;
+
+    @Column(length = 100)
+    private String username;
+    private String cpf;
+
+    @ElementCollection
+    @Column(name="email", length = 100, nullable = false)
+    private List<String> email;
+    @ElementCollection
+    private List<String> phone;
+    private String password;
+
+    @CreationTimestamp
+    @Column(updatable = false, name = "created_at")
+    private Date createdAt;
+
+    private Date updatedAt;
+
+    private Address Address;
+
+    @Data
+    public static class Address {
+        private String street;
+        private String number;
+        private String neighborhood;
+        private String city;
+        private String state;
+        private String zipCode;
+    }
+
+}

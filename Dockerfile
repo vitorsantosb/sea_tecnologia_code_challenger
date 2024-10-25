@@ -1,0 +1,9 @@
+FROM postgres:17
+
+ENV POSTGRES_USER=admin
+ENV POSTGRES_PASSWORD=123456
+ENV POSTGRES_DB=posts-db
+
+EXPOSE 5432
+
+CMD ["postgres"]
