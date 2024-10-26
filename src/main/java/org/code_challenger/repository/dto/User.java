@@ -31,7 +31,9 @@ public class User {
     @Column(name = "email")
     private List<String> emails = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ElementCollection
+    @CollectionTable(name = "user_phone", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "phones")
     private List<UserPhone> phones = new ArrayList<>();
 
     private String password;
@@ -57,20 +59,10 @@ public class User {
     }
 
     // Inner class for phones
-    @Entity
     @Table(name = "user_phone")
+    @Embeddable
     @Data
     public static class UserPhone {
-
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Long id;
-
-        @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "user_id")
-        private User user;
-
-        @Column(length = 15, nullable = false)
         private String phoneNumber;
         private String phoneType;
     }

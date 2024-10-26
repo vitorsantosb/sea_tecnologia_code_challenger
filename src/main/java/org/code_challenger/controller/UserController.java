@@ -95,11 +95,18 @@ public class UserController {
             _user.setEmails(userEmails);
         }
 
-        User.UserPhone phone = new User.UserPhone();
-        phone.setPhoneNumber("1234567890");
-        phone.setPhoneType("Mobile");
+        if (_user.getPhones() != null) {
+            List<User.UserPhone> userPhones = new ArrayList<>();
+            for (User.UserPhone phoneDTO : _user.getPhones()) {
+                System.out.println("Received Phone DTO: " + phoneDTO);
+                User.UserPhone userPhone = new User.UserPhone();
+                userPhone.setPhoneNumber(phoneDTO.getPhoneNumber());
+                userPhone.setPhoneType(phoneDTO.getPhoneType());
+                userPhones.add(userPhone);
+            }
+            _user.setPhones(userPhones);
+        }
 
-        _user.setPhones(Collections.singletonList(phone));
 
         String _hashPassword = bcryptService.CreateHashPassword(_user.getPassword());
         _user.setPassword(_hashPassword);

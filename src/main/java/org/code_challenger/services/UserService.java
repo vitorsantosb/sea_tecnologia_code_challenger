@@ -35,15 +35,4 @@ public class UserService {
 
         return userResponse;
     }
-
-    public static void SaveUserPhones(User user, List<User.UserPhone> phones) {
-        phones.forEach(phoneDTO -> {
-            User.UserPhone userPhone = new User.UserPhone();
-            userPhone.setPhoneNumber(phoneDTO.getPhoneNumber());
-            userPhone.setPhoneType(phoneDTO.getPhoneType());
-            userPhone.setUser(user);
-            user.getPhones().add(userPhone);
-        });
-    }
-
 }
