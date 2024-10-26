@@ -4,7 +4,7 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 
 import java.security.SecureRandom;
 
-public class bcryptService {
+public class BcryptService {
 
     public static String CreateHashPassword(String _password) {
         return BCrypt.hashpw(_password, BCrypt.gensalt(10, new SecureRandom()));

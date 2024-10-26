@@ -38,6 +38,8 @@ public class User {
 
     private String password;
 
+    private String role;
+
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")
     private Date createdAt;

@@ -1,11 +1,10 @@
 package org.code_challenger.controller;
 
-import lombok.var;
 import org.code_challenger.repository.UserRepository;
 import org.code_challenger.repository.dto.User;
 import org.code_challenger.services.ResponseBuilder;
 import org.code_challenger.services.UserService;
-import org.code_challenger.services.bcryptService;
+import org.code_challenger.services.BcryptService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,9 +18,11 @@ import static org.code_challenger.services.ZipCodeService.VerifyZipCode;
 @RequestMapping("/users")
 public class UserController {
     private final UserRepository userRepository;
+    private final ResponseBuilder responseBuilder;
 
-    public UserController(UserRepository userRepository) {
+    public UserController(UserRepository userRepository, ResponseBuilder responseBuilder) {
         this.userRepository = userRepository;
+        this.responseBuilder = responseBuilder;
     }
 
 
@@ -98,7 +99,6 @@ public class UserController {
         if (_user.getPhones() != null) {
             List<User.UserPhone> userPhones = new ArrayList<>();
             for (User.UserPhone phoneDTO : _user.getPhones()) {
-                System.out.println("Received Phone DTO: " + phoneDTO);
                 User.UserPhone userPhone = new User.UserPhone();
                 userPhone.setPhoneNumber(phoneDTO.getPhoneNumber());
                 userPhone.setPhoneType(phoneDTO.getPhoneType());
@@ -108,7 +108,7 @@ public class UserController {
         }
 
 
-        String _hashPassword = bcryptService.CreateHashPassword(_user.getPassword());
+        String _hashPassword = BcryptService.CreateHashPassword(_user.getPassword());
         _user.setPassword(_hashPassword);
 
         userRepository.save(_user);
