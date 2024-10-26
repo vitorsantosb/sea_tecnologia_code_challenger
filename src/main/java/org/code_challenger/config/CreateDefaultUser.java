@@ -2,6 +2,7 @@ package org.code_challenger.config;
 
 import org.code_challenger.repository.UserRepository;
 import org.code_challenger.repository.dto.User;
+import org.code_challenger.services.BcryptService;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +25,7 @@ public class CreateDefaultUser {
             if (userRepository.count() == 0) {
                 User defaultUser = new User();
                 defaultUser.setUsername("admin");
-                defaultUser.setPassword(passwordEncoder.encode("admin"));
+                defaultUser.setPassword(BcryptService.CreateHashPassword("admin"));
                 defaultUser.setEmails(Collections.singletonList("admin@exemplo.com"));
                 defaultUser.setRole("ADMIN");
 
