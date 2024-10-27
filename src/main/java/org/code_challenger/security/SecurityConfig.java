@@ -14,6 +14,8 @@ public class SecurityConfig {
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+    //add token validation for all requests.
     @Bean
     public DefaultSecurityFilterChain SecurityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()

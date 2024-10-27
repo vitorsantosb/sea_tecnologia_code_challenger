@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.code_challenger.services.EmailService.NormalizeEmail;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -28,8 +30,8 @@ public class AuthController {
 
     @RequestMapping("/login")
     public ResponseEntity<Map<String, Object>> userLogin(@RequestBody AuthCredentials credentials) {
-        System.out.println(credentials);
-        if (!userRepository.existsByEmailsContaining(credentials.getEmail())) {
+        String _normalizedUserEmail = NormalizeEmail(credentials.getEmail());
+        if (!userRepository.existsByEmailsContaining(_normalizedUserEmail)) {
             return ResponseBuilder.CreateHttpResponse(
                     "Not Found",
                     HttpStatus.NOT_FOUND,
@@ -40,11 +42,10 @@ public class AuthController {
             );
         }
 
-        Optional<User> optionalUser = userRepository.findUserByEmailInEmailsList(credentials.getEmail());
+        Optional<User> optionalUser = userRepository.findUserByEmailInEmailsList(_normalizedUserEmail);
 
         if (optionalUser.isPresent()) {
             User _currentUser = optionalUser.get();
-            System.out.println("_queryResult: " + _currentUser);
             String _userHashedPassword = _currentUser.getPassword();
 
             if (BcryptService.VerifyHashPassword(credentials.getPassword(), _userHashedPassword)) {

@@ -18,7 +18,7 @@ import java.util.List;
 public class CreateDefaultUser {
 
     @Bean
-    public ApplicationRunner defaultUserInitializer(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public ApplicationRunner defaultUserInitializer(UserRepository userRepository) {
         return args -> {
             System.out.println("Initialize default user...");
 

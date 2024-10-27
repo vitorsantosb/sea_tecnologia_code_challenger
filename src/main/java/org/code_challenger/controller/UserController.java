@@ -2,6 +2,7 @@ package org.code_challenger.controller;
 
 import org.code_challenger.repository.UserRepository;
 import org.code_challenger.repository.dto.User;
+import org.code_challenger.services.EmailService;
 import org.code_challenger.services.ResponseBuilder;
 import org.code_challenger.services.UserService;
 import org.code_challenger.services.BcryptService;
@@ -69,13 +70,7 @@ public class UserController {
             );
         }
 
-        User.Address address = new User.Address();
-        address.setStreet(_user.getAddress().getStreet());
-        address.setNumber(_user.getAddress().getNumber());
-        address.setNeighborhood(_user.getAddress().getNeighborhood());
-        address.setCity(_user.getAddress().getCity());
-        address.setState(_user.getAddress().getState());
-        address.setZipCode(_user.getAddress().getZipCode());
+        User.Address address = UserService.SetUserAddress(_user);
 
         if (!VerifyZipCode(address.getZipCode())) {
             return ResponseBuilder.CreateHttpResponse(
@@ -89,27 +84,16 @@ public class UserController {
         }
         _user.setAddress(address);
 
-        System.out.println(_user);
+        List<String> userEmail = UserService.ProcessUserEmails(_user);
+        _user.setEmails(userEmail);
 
-        if (_user.getEmails() != null) {
-            List<String> userEmails = new ArrayList<>(_user.getEmails());
-            _user.setEmails(userEmails);
-        }
-
-        if (_user.getPhones() != null) {
-            List<User.UserPhone> userPhones = new ArrayList<>();
-            for (User.UserPhone phoneDTO : _user.getPhones()) {
-                User.UserPhone userPhone = new User.UserPhone();
-                userPhone.setPhoneNumber(phoneDTO.getPhoneNumber());
-                userPhone.setPhoneType(phoneDTO.getPhoneType());
-                userPhones.add(userPhone);
-            }
-            _user.setPhones(userPhones);
-        }
-
+        List<User.UserPhone> _userPhones = UserService.ProcessUserPhones(_user);
+        _user.setPhones(_userPhones);
 
         String _hashPassword = BcryptService.CreateHashPassword(_user.getPassword());
         _user.setPassword(_hashPassword);
+
+        _user.setRole(_user.getRole());
 
         userRepository.save(_user);
 
@@ -121,5 +105,76 @@ public class UserController {
                 "/user/create",
                 UserService.BuildUserResponse(_user)
         );
+    }
+
+    @PutMapping
+    @RequestMapping("/me/update")
+    public ResponseEntity<Map<String, Object>> UpdateUser(@RequestBody User _userData, @RequestParam UUID id) {
+        if (!userRepository.existsById(id)) {
+            return ResponseBuilder.CreateHttpResponse(
+                    "User not found",
+                    HttpStatus.NOT_FOUND,
+                    "User provided not exists on database",
+                    "PUT",
+                    "/user/me",
+                    null
+            );
+        }
+        Optional<User> optionalUser = userRepository.findById(id);
+
+        if (optionalUser.isPresent()) {
+            User _currentUser = optionalUser.get();
+
+            _currentUser.setCpf(_userData.getCpf());
+            _currentUser.setUsername(_userData.getUsername());
+
+            User.Address address = UserService.SetUserAddress(_userData);
+            if (!VerifyZipCode(address.getZipCode())) {
+                return ResponseBuilder.CreateHttpResponse(
+                        "Invalid zip code",
+                        HttpStatus.BAD_REQUEST,
+                        "Invalid zip code",
+                        "PUT",
+                        "/user/me",
+                        null
+                );
+            }
+            _currentUser.setAddress(address);
+            _currentUser.setRole(_userData.getRole());
+
+            List<String> userEmail = UserService.ProcessUserEmails(_userData);
+            _currentUser.setEmails(userEmail);
+
+            List<User.UserPhone> _userPhones = UserService.ProcessUserPhones(_userData);
+            _currentUser.setPhones(_userPhones);
+
+            _currentUser.setUpdatedAt(new Date());
+
+            userRepository.save(_currentUser);
+
+            return ResponseBuilder.CreateHttpResponse(
+                    "User updated successfully",
+                    HttpStatus.ACCEPTED,
+                    "User updated successfully",
+                    "PUT",
+                    "/user/me",
+                    null
+            );
+        }else {
+            return ResponseBuilder.CreateHttpResponse(
+                    "User not found",
+                    HttpStatus.NOT_FOUND,
+                    "User provided not exists on database",
+                    "PUT",
+                    "/user/me",
+                    null
+            );
+        }
+    }
+
+    @GetMapping
+    @RequestMapping("/me")
+    public ResponseEntity<Map<String, Object>> GetCurrentUser() {
+        return null;
     }
 }
