@@ -1,20 +1,32 @@
 package org.code_challenger.services;
 
+import org.code_challenger.repository.UserRepository;
+import org.code_challenger.repository.dto.CustomUserDetails;
 import org.code_challenger.repository.dto.User;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import javax.xml.ws.Response;
 
 @Service
 public class UserService {
+
+    private final UserRepository userRepository;
+
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
 
     public static Map<String, Object> BuildUserResponse(User user) {
         Map<String, Object> userResponse = new HashMap<>();
@@ -80,5 +92,31 @@ public class UserService {
         }
         return userPhones;
     }
+
+    @Transactional
+    public CustomUserDetails LogUserDetails(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        UUID id = user.getId();
+        String email = user.getEmails().isEmpty() ? null : user.getEmails().get(0); // Verifica se há emails
+        String role = user.getRole() != null ? user.getRole() : "USER";
+
+        List<User.UserPhone> userPhones = new ArrayList<>(user.getPhones());
+
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        if (user.getRole() != null) {
+            authorities.add(new SimpleGrantedAuthority(user.getRole()));
+        } else {
+            authorities.add(new SimpleGrantedAuthority("USER"));
+        }
+
+        CustomUserDetails customUserDetails = new CustomUserDetails(id, email, authorities);
+        System.out.println("UserDetails: " + customUserDetails);
+
+        return customUserDetails;
+    }
+
+
 
 }

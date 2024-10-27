@@ -27,7 +27,7 @@ public class CreateDefaultUser {
                 defaultUser.setUsername("admin");
                 defaultUser.setPassword(BcryptService.CreateHashPassword("admin"));
                 defaultUser.setEmails(Collections.singletonList("admin@exemplo.com"));
-                defaultUser.setRole("ADMIN");
+                defaultUser.setRole("ROLE_ADMIN");
 
                 List<User.UserPhone> userPhones = new ArrayList<>();
                 User.UserPhone phone1 = new User.UserPhone();

@@ -1,11 +1,13 @@
 package org.code_challenger.controller;
 
+import org.code_challenger.repository.TokenRepository;
 import org.code_challenger.repository.UserRepository;
 import org.code_challenger.repository.dto.AuthCredentials;
 import org.code_challenger.repository.dto.AuthCredentialsDTO;
 import org.code_challenger.repository.dto.User;
 import org.code_challenger.services.BcryptService;
 import org.code_challenger.services.ResponseBuilder;
+import org.code_challenger.services.TokenService;
 import org.code_challenger.services.UuidService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 
@@ -23,9 +26,10 @@ import static org.code_challenger.services.EmailService.NormalizeEmail;
 public class AuthController {
 
     private final UserRepository userRepository;
-
-    public AuthController(UserRepository userRepository) {
+    private final TokenService tokenService;
+    public AuthController(UserRepository userRepository, TokenService tokenService) {
         this.userRepository = userRepository;
+        this.tokenService = tokenService;
     }
 
     @RequestMapping("/login")
@@ -56,6 +60,8 @@ public class AuthController {
                         _uuidToken,
                         _currentUser.getRole()
                 );
+
+                tokenService.StoreSecurityToken(_uuidToken, _currentUser.getId(), LocalDateTime.now().plusMinutes(30));
 
                 return ResponseBuilder.CreateHttpResponse(
                         "Success",

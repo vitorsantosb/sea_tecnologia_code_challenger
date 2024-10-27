@@ -8,6 +8,7 @@ import org.code_challenger.services.UserService;
 import org.code_challenger.services.BcryptService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -28,7 +29,11 @@ public class UserController {
 
 
     @GetMapping
+    @RequestMapping("/list")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> GetUsersList() {
+        System.out.println("Access route /users");
+
         List<User> users = userRepository.findAll();
 
         List<Map<String, Object>> usersList = users.stream()
@@ -58,6 +63,7 @@ public class UserController {
 
     @PostMapping
     @RequestMapping("/create")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> CreateUser(@RequestBody User _user) {
         if (userRepository.existsByCpf(_user.getCpf())) {
             return ResponseBuilder.CreateHttpResponse(

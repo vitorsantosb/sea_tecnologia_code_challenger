@@ -38,6 +38,7 @@ public class User {
 
     private String password;
 
+    @Column(name = "role")
     private String role;
 
     @CreationTimestamp
@@ -60,7 +61,6 @@ public class User {
         private String zipCode;
     }
 
-    // Inner class for phones
     @Table(name = "user_phone")
     @Embeddable
     @Data
