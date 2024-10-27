@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -13,8 +14,8 @@ import java.util.UUID;
 public interface TokenRepository extends JpaRepository<TokenCredentials, UUID> {
 
     @Modifying
-    @Query("DELETE FROM TokenCredentials t WHERE t.expirationTime < CURRENT_TIMESTAMP")
-    void deleteExpiredTokens();
+    @Query("DELETE FROM TokenCredentials t WHERE t.expirationTime < :currentTime")
+    void deleteExpiredTokens(LocalDateTime currentTime);
 
     Optional<TokenCredentials> findByToken(UUID token);
 }
