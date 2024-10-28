@@ -23,7 +23,7 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, MaskDataService maskDataService) {
         this.userRepository = userRepository;
     }
 
@@ -35,8 +35,21 @@ public class UserService {
         userResponse.put("id", user.getId());
         userResponse.put("username", user.getUsername());
         userResponse.put("email", user.getEmails());
-        userResponse.put("phone", user.getPhones());
-        userResponse.put("cpf", user.getCpf());
+        userResponse.put("cpf", MaskDataService.ApplyStringMask(user.getCpf(), MaskType.CPF));
+        userResponse.put("role", user.getRole());
+
+        List<Map<String, String>> formattedPhones = new ArrayList<>();
+        for (User.UserPhone phone : user.getPhones()) {
+            Map<String, String> phoneData = new HashMap<>();
+
+            String phoneTypeUpper = phone.getPhoneType().toUpperCase();
+            String formattedPhoneNumber = MaskDataService.ApplyStringMask(phone.getPhoneNumber().replace("+55", ""), MaskType.valueOf(phoneTypeUpper));
+
+            phoneData.put("phoneType", phoneTypeUpper);
+            phoneData.put("phoneNumber", "+55" + formattedPhoneNumber);
+            formattedPhones.add(phoneData);
+        }
+        userResponse.put("phone", formattedPhones);
 
         if (user.getAddress() != null) {
             addressResponse.put("street", user.getAddress().getStreet());
@@ -80,18 +93,22 @@ public class UserService {
         return address;
     }
     public static List<User.UserPhone> ProcessUserPhones(User _user) {
+        if (_user.getPhones() == null || _user.getPhones().isEmpty()) {
+            throw new IllegalArgumentException("User must provide at least one phone number");
+        }
+
         List<User.UserPhone> userPhones = new ArrayList<>();
 
-        if (_user.getPhones() != null) {
-            for (User.UserPhone phoneDTO : _user.getPhones()) {
-                User.UserPhone userPhone = new User.UserPhone();
-                userPhone.setPhoneNumber(phoneDTO.getPhoneNumber());
-                userPhone.setPhoneType(phoneDTO.getPhoneType());
-                userPhones.add(userPhone);
-            }
+        for (User.UserPhone phoneDTO : _user.getPhones()) {
+            User.UserPhone userPhone = new User.UserPhone();
+            userPhone.setPhoneNumber(phoneDTO.getPhoneNumber());
+            userPhone.setPhoneType(phoneDTO.getPhoneType());
+            userPhones.add(userPhone);
         }
+
         return userPhones;
     }
+
 
     @Transactional
     public CustomUserDetails LogUserDetails(UUID userId) {

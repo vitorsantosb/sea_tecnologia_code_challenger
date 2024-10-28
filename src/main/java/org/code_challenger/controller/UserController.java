@@ -90,11 +90,35 @@ public class UserController {
         }
         _user.setAddress(address);
 
-        List<String> userEmail = UserService.ProcessUserEmails(_user);
+        List<String> userEmail;
+        try {
+            userEmail = UserService.ProcessUserEmails(_user);
+        } catch (Exception e) {
+            return ResponseBuilder.CreateHttpResponse(
+                    "Failed to process user emails",
+                    HttpStatus.BAD_REQUEST,
+                    "Error processing email list: " + e.getMessage(),
+                    "POST",
+                    "/user/create",
+                    null
+            );
+        }
         _user.setEmails(userEmail);
 
-        List<User.UserPhone> _userPhones = UserService.ProcessUserPhones(_user);
-        _user.setPhones(_userPhones);
+        List<User.UserPhone> _userPhones;
+        try {
+            _userPhones = UserService.ProcessUserPhones(_user);
+        } catch (Exception e) {
+            return ResponseBuilder.CreateHttpResponse(
+                    "Failed to process user phones",
+                    HttpStatus.BAD_REQUEST,
+                    "Error processing phone list: " + e.getMessage(),
+                    "POST",
+                    "/user/create",
+                    null
+            );
+        }
+
 
         String _hashPassword = BcryptService.CreateHashPassword(_user.getPassword());
         _user.setPassword(_hashPassword);
