@@ -139,8 +139,8 @@ public class UserController {
 
     @PutMapping
     @RequestMapping("/me/update")
-    public ResponseEntity<Map<String, Object>> UpdateUser(@RequestBody User _userData, @RequestParam UUID id) {
-        if (!userRepository.existsById(id)) {
+    public ResponseEntity<Map<String, Object>> UpdateUser(@RequestBody User _userData, @RequestParam String id) {
+        if (!userRepository.existsById(UUID.fromString(id))) {
             return ResponseBuilder.CreateHttpResponse(
                     "User not found",
                     HttpStatus.NOT_FOUND,
@@ -150,7 +150,7 @@ public class UserController {
                     null
             );
         }
-        Optional<User> optionalUser = userRepository.findById(id);
+        Optional<User> optionalUser = userRepository.findById(UUID.fromString(id));
 
         if (optionalUser.isPresent()) {
             User _currentUser = optionalUser.get();
@@ -204,7 +204,37 @@ public class UserController {
 
     @GetMapping
     @RequestMapping("/me")
-    public ResponseEntity<Map<String, Object>> GetCurrentUser() {
-        return null;
+    public ResponseEntity<Map<String, Object>> GetCurrentUser(@RequestParam String id) {
+        if (!userRepository.existsById(UUID.fromString(id))) {
+            return ResponseBuilder.CreateHttpResponse(
+                    "User not found",
+                    HttpStatus.NOT_FOUND,
+                    "User provided not exists on database",
+                    "PUT",
+                    "/user/me",
+                    null
+            );
+        } else {
+            Optional<User> optionalUser = userRepository.findById(UUID.fromString(id));
+            if (optionalUser.isPresent()) {
+                User _currentUser = optionalUser.get();
+                return ResponseBuilder.CreateHttpResponse(
+                        "OK",
+                        HttpStatus.OK,
+                        "Successfully return user data",
+                        "GET",
+                        "/user/me",
+                        UserService.BuildUserResponse(_currentUser)
+                );
+            }
+        }
+        return ResponseBuilder.CreateHttpResponse(
+                "User not found",
+                HttpStatus.NOT_FOUND,
+                "User provided not exists on database",
+                "PUT",
+                "/user/me",
+                null
+        );
     }
 }
