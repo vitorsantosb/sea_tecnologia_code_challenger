@@ -262,9 +262,9 @@ Resposta esperada
         "cpf": "392.741.601-00",
         "id": "e1b46fb4-0081-4524-8a5d-5471f60162cc",
         "email": [
-            "shadomal1990@gmail.com"
+            "emailExemple1990@gmail.com"
         ],
-        "username": "Shadomal"
+        "username": "ExempleName"
     },
     "message": "User found",
     "statusCode": 200
